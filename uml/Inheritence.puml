@@ -1,0 +1,270 @@
+@startuml
+' https://plantuml.com/class-diagram
+
+abstract class AbstractFlyingObject {
+    # locationX:int
+    # locationY:int
+    # speedX:int
+    # speedY:int
+    # image:BufferedImage
+    # width:int
+    # height:int
+    # isValid:boolean
+
+    + AbstractFlyingObject(int locationX, int locationY, int speedX, int speedY)
+    + forward():void
+    + crash(AbstractFlyingObject flyingObject):boolean
+    + setLocation(double locationX, double locationY):void
+    + getLocationX():int
+    + getLocationY():int
+    + getSpeedY():int
+    + getImage():BufferedImage
+    + getWidth():int
+    + getHeight():int
+    + notValid():boolean
+    + vanish():void
+}
+
+abstract class AbstractAircraft {
+    # maxHp:int
+    # hp:int
+    # shootStrategy:strategy
+    + AbstractAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
+    + setShootStrategy(shootStrategy:strategy):void
+    + decreaseHp(int decrease):void
+    + getHp():int
+    + update():void
+    + {abstract} shoot():List<BaseBullet>
+}
+
+class HeroAircraft {
+    - heroAircraft:HeroAircraft
+    - HeroAircraft(int locationX, int locationY, int speedX, int speedY, int hp)
+    + getHeroAircraft():HeroAircraft
+    + increaseHp(int hp):void
+    + forward():void
+    + shoot():List<BaseBullet>
+}
+
+AbstractAircraft <|-- HeroAircraft
+
+interface EnemyFactory {
+    + createEnemyWithSupplies(locationX:int, locationY:int, speedX:int, speedY:int, hp:int, bloodSupplyFactory:SupplyFactory,
+      bombSupplyFactory:SupplyFactory, bulletSupplyFactory:SupplyFactory, superBulletSupplyFactory:SupplyFactory):AbstractAircraft
+}
+
+class MobEnemyFactory
+class EliteEnemyFactory
+class SuperEliteEnemyFactory
+class BossFactory
+
+class MobEnemy {
+    + MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp)
+    + forward():void
+    + shoot():List<BaseBullet>
+    + update():void
+}
+
+AbstractAircraft <|-- MobEnemy
+
+EnemyFactory <|.. MobEnemyFactory
+EnemyFactory <|.. EliteEnemyFactory
+EnemyFactory <|.. SuperEliteEnemyFactory
+EnemyFactory <|.. BossFactory
+
+MobEnemyFactory ..> MobEnemy : create
+EliteEnemyFactory ..> EliteEnemy : create
+SuperEliteEnemyFactory ..> SuperEliteEnemy : create
+BossFactory ..> Boss : create
+
+class EliteEnemy {
+    - bloodSupplyFactory:SupplyFactory
+    - bombSupplyFactory:SupplyFactory
+    - bulletSupplyFactory:SupplyFactory
+    - superBulletSupplyFactory:SupplyFactory
+    + EliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp,
+                 bloodSupplyFactory:SupplyFactory, bombSupplyFactory:SupplyFactory,
+                 bulletSupplyFactory:SupplyFactory, superBulletSupplyFactory:SupplyFactory)
+    + forward():void
+    + shoot():List<BaseBullet>
+    + dropSupply():List<BaseSupply>
+    + update():void
+}
+
+class SuperEliteEnemy {
+    - bloodSupplyFactory:SupplyFactory
+    - bombSupplyFactory:SupplyFactory
+    - bulletSupplyFactory:SupplyFactory
+    - superBulletSupplyFactory:SupplyFactory
+    + SuperEliteEnemy(int locationX, int locationY, int speedX, int speedY, int hp,
+                      bloodSupplyFactory:SupplyFactory, bombSupplyFactory:SupplyFactory,
+                      bulletSupplyFactory:SupplyFactory, superBulletSupplyFactory:SupplyFactory)
+    + forward():void
+    + shoot():List<BaseBullet>
+    + dropSupply():List<BaseSupply>
+    + update():void
+}
+
+class Boss {
+    - angleCount:int
+    - power:int
+    - bulletSpeed:int
+    - bloodSupplyFactory:SupplyFactory
+    - bombSupplyFactory:SupplyFactory
+    - bulletSupplyFactory:SupplyFactory
+    - superBulletSupplyFactory:SupplyFactory
+    + Boss(int locationX, int locationY, int speedX, int speedY, int hp,
+           bloodSupplyFactory:SupplyFactory, bombSupplyFactory:SupplyFactory,
+           bulletSupplyFactory:SupplyFactory, superBulletSupplyFactory:SupplyFactory)
+    + forward():void
+    + shoot():List<BaseBullet>
+    + dropSupply():List<BaseSupply>
+}
+
+AbstractAircraft <|-- EliteEnemy
+AbstractAircraft <|-- SuperEliteEnemy
+AbstractAircraft <|-- Boss
+
+abstract class BaseBullet {
+    - power:int
+    + BaseBullet(int locationX, int locationY, int speedX, int speedY, int power)
+    + forward():void
+    + getPower():int
+}
+
+class HeroBullet {
+    + HeroBullet(int locationX, int locationY, int speedX, int speedY, int power)
+}
+
+class EnemyBullet {
+    + EnemyBullet(int locationX, int locationY, int speedX, int speedY, int power)
+}
+
+class BloodSupply {
+    + BloodSupply(int locationX, int locationY, int speedX, int speedY, int value)
+}
+
+class BulletSupply {
+    + BulletSupply(int locationX, int locationY, int speedX, int speedY, int value)
+}
+
+class BombSupply {
+    + BombSupply(int locationX, int locationY, int speedX, int speedY, int value)
+}
+
+abstract class BaseSupply {
+    - value:int
+    + BaseSupply(int locationX, int locationY, int speedX, int speedY, int value)
+    + forward():void
+}
+
+BaseSupply <|-- BloodSupply
+BaseSupply <|-- BulletSupply
+BaseSupply <|-- BombSupply
+
+interface SupplyFactory {
+    + createSupply(locationX:int, locationY:int, speedX:int, speedY:int, value:int):BaseSupply
+}
+
+class BombSupplyFactory
+class BulletSupplyFactory
+class BloodSupplyFactory
+
+SupplyFactory <|.. BombSupplyFactory
+SupplyFactory <|.. BulletSupplyFactory
+SupplyFactory <|.. BloodSupplyFactory
+BombSupplyFactory ..> BombSupply : create
+BulletSupplyFactory ..> BulletSupply : create
+BloodSupplyFactory ..> BloodSupply : create
+
+AbstractFlyingObject <|-- BaseSupply
+BaseBullet <|-- HeroBullet
+BaseBullet <|-- EnemyBullet
+AbstractFlyingObject <|-- AbstractAircraft
+AbstractFlyingObject <|-- BaseBullet
+
+interface strategy {
+    + executeStrategy(x:int, y:int, speedX:int, speedY:int, shootNum:int, power:int, direction:int, isHero:int):List<BaseBullet>
+}
+
+class Direct
+class Scatter
+class Circle {
+    - angleCount:int
+    - bulletSpeed:int
+}
+
+strategy <|.. Direct
+strategy <|.. Scatter
+strategy <|.. Circle
+
+AbstractAircraft o--  strategy : shootStrategy
+
+interface ScoreDao {
+    + doAdd(s:Score):void
+    + getAllScores():List<Score>
+}
+class ScoreDaolmpl {
+    + doAdd(s:Score):void
+    + getAllScores():List<Score>
+}
+class Score {
+    - score:int
+    - scorename:String
+    - time:LocalDateTime
+    + Score(score:int, scorename:String)
+    + Score(score:int, scorename:String, time:LocalDateTime)
+    + getScore():int
+    + getScorename():String
+    + getTime():LocalDateTime
+    + getTimeString():String
+}
+class ExportRecords {
+    + exportRecord(scores:int, scoreName:String):void
+}
+
+ScoreDaolmpl ..|> ScoreDao
+ScoreDao ..> Score
+ExportRecords ..> ScoreDao
+ExportRecords ..> Score : create
+
+class BombActive {
+    - aircraftList:List<ObserverAircraft>
+    + addAircraft(aircraft:ObserverAircraft):void
+    + removeAircraft(aircraft:ObserverAircraft):void
+    + notifyAircrafts():void
+    + catchBombSupply():void
+}
+
+interface ObserverAircraft {
+    + update():void
+}
+
+ObserverAircraft <|.. MobEnemy
+ObserverAircraft <|.. EliteEnemy
+ObserverAircraft <|.. SuperEliteEnemy
+
+' explicit aggregation between BombActive and ObserverAircraft
+BombActive  o--  ObserverAircraft : observers
+
+abstract class ModeSelect{
+    +selectMode():void
+}
+
+class Easy{
+    +selectMode():void
+}
+
+class Medium{
+    +selectMode():void
+}
+
+class Difficult{
+    +selectMode():void
+}
+
+ModeSelect <|-- Easy
+ModeSelect <|-- Medium
+ModeSelect <|-- Difficult
+
+@enduml
